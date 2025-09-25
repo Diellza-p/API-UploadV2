@@ -14,7 +14,7 @@ func ConnectPSQLDatabase() {
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		EnvDBHost(),
 		EnvDBUser(),
-		"synEyeC#1",
+		EnvDBPassword(),
 		EnvDBName(),
 		EnvDBPort(),
 	)

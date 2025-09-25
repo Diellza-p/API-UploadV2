@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"upload-service/configs"
 	"upload-service/routes"
 
@@ -29,5 +30,9 @@ func main() {
 	router.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Ready")
 	})
-	log.Fatal(http.ListenAndServe(":30970", router))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

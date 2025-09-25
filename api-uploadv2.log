@@ -1,0 +1,12 @@
+Connected to MongoDB
+Connected to MongoDB
+
+2025/09/19 08:32:33 [35m/root/sYn/API-UploadV2/configs/setup_psql.go:21
+[0m[31m[error] [0mfailed to initialize database, got error failed to connect to `host=localhost user=postgres database=protecht_users`: server error (FATAL: password authentication failed for user "postgres" (SQLSTATE 28P01))
+panic: Failed to connect to database
+
+goroutine 1 [running]:
+upload-service/configs.ConnectPSQLDatabase()
+	/root/sYn/API-UploadV2/configs/setup_psql.go:24 +0x2db
+main.main()
+	/root/sYn/API-UploadV2/main.go:16 +0x59

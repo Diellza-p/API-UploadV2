@@ -12,7 +12,7 @@ func EnvMongoURI() string {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	return os.Getenv("MONGOURI")
+	return os.Getenv("MONGODB_URI")
 }
 
 func EnvNotificationServiceURL() string {
@@ -46,7 +46,7 @@ func RedisURL() string {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	return os.Getenv("REDISURL")
+	return os.Getenv("REDIS_URL")
 }
 
 func NOTIFICATIONCHANNEL() string {
