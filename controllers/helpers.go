@@ -56,7 +56,7 @@ func sendLiveStartedNotification(userID string, contentID string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	followings := []models.Follow{}
-	cur, err := followsCollection.Find(ctx, bson.M{"following": userID})
+	cur, err := getFollowsCollection().Find(ctx, bson.M{"following": userID})
 	if err != nil {
 		return
 	}
@@ -79,7 +79,7 @@ func sendLiveStartedNotification(userID string, contentID string) {
 		bson.M{"reposter": userID},
 	}, "isdeleted": false, "show": true}
 	var content []models.Content
-	cur, err := contentCollection.Find(ctx, filterByUserID, sortByDateCreated)
+	cur, err := getContentCollection().Find(ctx, filterByUserID, sortByDateCreated)
 	if err != nil {
 		fmt.Println("error getting videos for user", userID)
 		return

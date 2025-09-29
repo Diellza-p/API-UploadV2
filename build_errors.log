@@ -1,0 +1,22 @@
+# runtime/internal/sys
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:9:7: len8tab redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:76:7: other declaration of len8tab
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:32:6: Len64 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:99:6: other declaration of Len64
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:50:7: m0 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:117:7: other declaration of m0
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:51:7: m1 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:118:7: other declaration of m1
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:52:7: m2 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:119:7: other declaration of m2
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:55:6: OnesCount64 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:122:6: other declaration of OnesCount64
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:86:6: LeadingZeros64 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:153:6: other declaration of LeadingZeros64
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:89:6: LeadingZeros8 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:156:6: other declaration of LeadingZeros8
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:92:6: Len8 redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:159:6: other declaration of Len8
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:101:6: Prefetch redeclared in this block
+	/usr/local/go/src/runtime/internal/sys/intrinsics.go:200:6: other declaration of Prefetch
+/usr/local/go/src/runtime/internal/sys/intrinsics_common.go:101:6: too many errors

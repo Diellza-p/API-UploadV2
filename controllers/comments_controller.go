@@ -17,7 +17,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var commentsCollection *mongo.Collection = configs.GetCollection(configs.DB, "comments")
+func getCommentsCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "comments")
+}
 
 func AddComment() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
@@ -42,7 +44,7 @@ func AddComment() http.HandlerFunc {
 			DateCreated:    time.Now(),
 		}
 
-		res, err := commentsCollection.InsertOne(ctx, comment)
+		res, err := getCommentsCollection().InsertOne(ctx, comment)
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return
@@ -54,7 +56,7 @@ func AddComment() http.HandlerFunc {
 			return
 		}
 		content := models.Content{}
-		err = contentCollection.FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
+		err = getContentCollection().FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
 		if err != nil {
 			fmt.Println("couldn't get decode content from ", oCID)
 			successResponse(rw, res.InsertedID)
@@ -97,7 +99,7 @@ func AddCommentWithBody() http.HandlerFunc {
 			DateCreated:    time.Now(),
 		}
 
-		res, err := commentsCollection.InsertOne(ctx, comment)
+		res, err := getCommentsCollection().InsertOne(ctx, comment)
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return
@@ -109,7 +111,7 @@ func AddCommentWithBody() http.HandlerFunc {
 			return
 		}
 		content := models.Content{}
-		err = contentCollection.FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
+		err = getContentCollection().FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
 		if err != nil {
 			fmt.Println("couldn't get decode content from ", oCID)
 			successResponse(rw, res.InsertedID)
@@ -158,7 +160,7 @@ func AddCommentWithBodyWithOtherUserID() http.HandlerFunc {
 			DateCreated:    time.Now(),
 		}
 
-		insertRes, err := commentsCollection.InsertOne(ctx, comment)
+		insertRes, err := getCommentsCollection().InsertOne(ctx, comment)
 		if err != nil {
 			errorResponse(rw, fmt.Errorf("failed to insert comment: %v", err), http.StatusInternalServerError)
 			return
@@ -205,7 +207,7 @@ func BackfillComments() http.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		cursor, err := commentsCollection.Find(ctx, bson.M{})
+		cursor, err := getCommentsCollection().Find(ctx, bson.M{})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -238,7 +240,7 @@ func BackfillComments() http.HandlerFunc {
 		}
 
 		if len(writeModels) > 0 {
-			_, err := commentsCollection.BulkWrite(ctx, writeModels)
+			_, err := getCommentsCollection().BulkWrite(ctx, writeModels)
 			if err != nil {
 				fmt.Println("couldn't bulkWrite", err)
 			}
@@ -277,7 +279,7 @@ func EditComment() http.HandlerFunc {
 		}
 		filter := bson.M{"_id": oID}
 		update := bson.M{"$set": bson.M{"comment": commentTxtDecoded}}
-		err = commentsCollection.FindOneAndUpdate(ctx, filter, update).Err()
+		err = getCommentsCollection().FindOneAndUpdate(ctx, filter, update).Err()
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return
@@ -308,7 +310,7 @@ func EditCommentWithBody() http.HandlerFunc {
 		}
 		filter := bson.M{"_id": oID}
 		update := bson.M{"$set": bson.M{"comment": commentTxt}}
-		err = commentsCollection.FindOneAndUpdate(ctx, filter, update).Err()
+		err = getCommentsCollection().FindOneAndUpdate(ctx, filter, update).Err()
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return
@@ -328,7 +330,7 @@ func DeleteComment() http.HandlerFunc {
 			errorResponse(rw, err, 200)
 			return
 		}
-		err = commentsCollection.FindOneAndUpdate(ctx, bson.M{"_id": commentOID}, bson.M{"$set": bson.M{"isdeleted": true}}).Err()
+		err = getCommentsCollection().FindOneAndUpdate(ctx, bson.M{"_id": commentOID}, bson.M{"$set": bson.M{"isdeleted": true}}).Err()
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return

@@ -1,0 +1,48 @@
+{"level":"info","message":"Logger initializedlevelinfolog_filelogs/api-uploadv2.logenvironmentdevelopment","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Starting API-UploadV2 service initialization","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Middleware configured","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Connecting to databases...","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Connected to MongoDB successfullyurimongodb://localhost:27019/synapp?authSource=admin","operation":"mongodb-connect","service":"database","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"MongoDB connected successfullyduration8.827083ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Connected to PostgreSQL database successfullydatabasepostgres","operation":"postgresql-connect","service":"database","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"PostgreSQL connected successfullyduration9.521916ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Connected to Redis successfullyaddresslocalhost:6379ping_responsePONG","operation":"redis-connect","service":"database","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Redis connected successfullyduration1.130708ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Registering API routes...","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Content routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Comment routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Likes routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Favorites routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Transfer routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Promotion routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Feedback routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"API-UploadV2 service startedport3006","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:33:03+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:10+02:00","level":"error","message":"Failed to query feedback collectionerror(Unauthorized) command find requires authentication","operation":"get-all","service":"feedback","timestamp":"2025-09-29T11:33:10+02:00"}
+{"client_ip":"[::1]:63558","duration":"2.551375ms","level":"warning","message":"HTTP request completed with error","method":"GET","path":"/uploadmicro/v1/feedback","service":"http","status_code":500,"timestamp":"2025-09-29T11:33:10+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Shutting down server...","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:33+02:00"}
+{"fields.timestamp":"2025-09-29T11:33:03+02:00","level":"info","message":"Server shutdown complete","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:33+02:00"}
+{"level":"info","message":"Logger initializedlevelinfolog_filelogs/api-uploadv2.logenvironmentdevelopment","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Starting API-UploadV2 service initialization","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Middleware configured","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Connecting to databases...","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Connected to MongoDB successfullyurimongodb://root:password123@localhost:27019/synapp?authSource=admin","operation":"mongodb-connect","service":"database","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"MongoDB connected successfullyduration24.127333ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Connected to PostgreSQL database successfullydatabasepostgres","operation":"postgresql-connect","service":"database","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"PostgreSQL connected successfullyduration17.570291ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Connected to Redis successfullyaddresslocalhost:6381ping_responsePONG","operation":"redis-connect","service":"database","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Redis connected successfullyduration2.13175ms","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Registering API routes...","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Content routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Comment routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Likes routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Favorites routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Transfer routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Promotion routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"Feedback routes registered","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:34+02:00","level":"info","message":"API-UploadV2 service startedport3006","operation":"startup","service":"api-uploadv2","timestamp":"2025-09-29T11:34:34+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:38+02:00","level":"info","message":"Feedback retrieved successfullycount1","operation":"get-all","service":"feedback","timestamp":"2025-09-29T11:34:38+02:00"}
+{"collection":"feedback","duration":"4.477291ms","level":"info","message":"Database operation completed","operation":"find","service":"database","timestamp":"2025-09-29T11:34:38+02:00"}
+{"client_ip":"[::1]:63994","duration":"4.659333ms","level":"info","message":"HTTP request completed","method":"GET","path":"/uploadmicro/v1/feedback","service":"http","status_code":200,"timestamp":"2025-09-29T11:34:38+02:00"}
+{"fields.timestamp":"2025-09-29T11:34:52+02:00","level":"info","message":"Feedback retrieved successfullycount1","operation":"get-all","service":"feedback","timestamp":"2025-09-29T11:34:52+02:00"}
+{"collection":"feedback","duration":"2.292959ms","level":"info","message":"Database operation completed","operation":"find","service":"database","timestamp":"2025-09-29T11:34:52+02:00"}
+{"client_ip":"[::1]:64061","duration":"2.640084ms","level":"info","message":"HTTP request completed","method":"GET","path":"/uploadmicro/v1/feedback","service":"http","status_code":200,"timestamp":"2025-09-29T11:34:52+02:00"}

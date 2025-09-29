@@ -21,7 +21,7 @@ func TransferProfilePics() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 		defer cancel()
-		cur, err := profilepicsCollection.Find(ctx, bson.M{"location": bson.M{"$exists": false}})
+		cur, err := getProfilePicsCollection().Find(ctx, bson.M{"location": bson.M{"$exists": false}})
 		if err != nil {
 			errorResponse(w, err, 200)
 			return
@@ -79,7 +79,7 @@ func TransferProfilePics() http.HandlerFunc {
 				log.Fatal("Error saving image", err)
 			}
 			file.Close()
-			profilepicsCollection.UpdateOne(ctx, bson.M{"_id": profilePic.ID}, bson.M{"$set": bson.M{"location": fullPath}})
+			getProfilePicsCollection().UpdateOne(ctx, bson.M{"_id": profilePic.ID}, bson.M{"$set": bson.M{"location": fullPath}})
 		}
 		successResponse(w, "Transfered")
 	}

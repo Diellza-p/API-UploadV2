@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.4.0
+	github.com/sirupsen/logrus v1.9.3
 	go.mongodb.org/mongo-driver v1.11.0
 )
 
@@ -22,6 +23,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.31.1 // indirect
 	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 )
 
 require (

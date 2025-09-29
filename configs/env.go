@@ -1,127 +1,116 @@
 package configs
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
 )
 
-func EnvMongoURI() string {
+func init() {
+	// Load .env file once during package initialization
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		// Log warning instead of fatal - allow app to continue with defaults
+		if Logger != nil {
+			Logger.Warn("Could not load .env file, using environment variables or defaults", "error", err)
+		}
 	}
-	return os.Getenv("MONGODB_URI")
+}
+
+func EnvMongoURI() string {
+	if uri := os.Getenv("MONGODB_URI"); uri != "" {
+		return uri
+	}
+	return "mongodb://localhost:27017/synapp" // default fallback
 }
 
 func EnvNotificationServiceURL() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if url := os.Getenv("NOTIFICATION_SERVICE_URL"); url != "" {
+		return url
 	}
-	return os.Getenv("NOTIFICATION_SERVICE_URL")
+	return "http://localhost:3007" // default fallback
 }
 
 func EnvMediaDir() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if dir := os.Getenv("MEDIADIR"); dir != "" {
+		return dir
 	}
-
-	return os.Getenv("MEDIADIR")
+	return "/tmp/media" // default fallback
 }
 
 func EnvStreamDir() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if dir := os.Getenv("STREAMDIR"); dir != "" {
+		return dir
 	}
-
-	return os.Getenv("STREAMDIR")
+	return "/tmp/stream" // default fallback
 }
 
 func RedisURL() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if url := os.Getenv("REDIS_URL"); url != "" {
+		return url
 	}
-	return os.Getenv("REDIS_URL")
+	return "localhost:6379" // default fallback
 }
 
 func NOTIFICATIONCHANNEL() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if channel := os.Getenv("NOTIFICATION_CHANNEL"); channel != "" {
+		return channel
 	}
-	return os.Getenv("NOTIFICATION_CHANNEL")
+	return "notifications" // default fallback
 }
 
 func INITMEDIADIR() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if dir := os.Getenv("INIT_MEDIA_DIR"); dir != "" {
+		return dir
 	}
-	return os.Getenv("INIT_MEDIA_DIR")
+	return "/tmp/media" // default fallback
 }
 
 func EnvDBHost() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if host := os.Getenv("DB_HOST"); host != "" {
+		return host
 	}
-
-	return os.Getenv("DB_HOST")
+	return "localhost" // default fallback
 }
 
 func EnvDBUser() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if user := os.Getenv("DB_USER"); user != "" {
+		return user
 	}
-
-	return os.Getenv("DB_USER")
+	return "postgres" // default fallback
 }
 
 func EnvDBPassword() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if password := os.Getenv("DB_PASSWORD"); password != "" {
+		return password
 	}
-
-	return os.Getenv("DB_PASSWORD")
+	return "password123" // default fallback
 }
 
 func EnvDBName() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if name := os.Getenv("DB_NAME"); name != "" {
+		return name
 	}
-
-	return os.Getenv("DB_NAME")
+	return "synapp" // default fallback
 }
 
 func EnvDBPort() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if port := os.Getenv("DB_PORT"); port != "" {
+		return port
 	}
-
-	return os.Getenv("DB_PORT")
+	return "5432" // default fallback
 }
 
 func FEMALEAVATAR() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if avatar := os.Getenv("FEMALEAVATAR"); avatar != "" {
+		return avatar
 	}
-	return os.Getenv("FEMALEAVATAR")
+	return "default_female.jpg" // default fallback
 }
 
 func MALEAVATAR() string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if avatar := os.Getenv("MALEAVATAR"); avatar != "" {
+		return avatar
 	}
-	return os.Getenv("MALEAVATAR")
+	return "default_male.jpg" // default fallback
 }

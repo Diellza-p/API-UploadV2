@@ -29,13 +29,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	contentCollection     *mongo.Collection = configs.GetCollection(configs.DB, "content")
-	profilepicsCollection *mongo.Collection = configs.GetCollection(configs.DB, "profile_pics")
-	videosCollection      *mongo.Collection = configs.GetCollection(configs.DB, "videos")
-	usersCollection       *mongo.Collection = configs.GetCollection(configs.DB, "users")
-	followsCollection     *mongo.Collection = configs.GetCollection(configs.DB, "follows")
-)
+func getContentCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "content")
+}
+
+func getProfilePicsCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "profile_pics")
+}
+
+func getVideosCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "videos")
+}
+
+func getUsersCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "users")
+}
+
+func getFollowsCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "follows")
+}
 
 //var validate = validator.New()
 
@@ -113,7 +125,7 @@ func UpdateOnProfilePic() http.HandlerFunc {
 			errorResponse(rw, fmt.Errorf("invalid object id"), 200)
 			return
 		}
-		err = usersCollection.FindOne(ctx, bson.M{"_id": oID}).Decode(&userObj)
+		err = getUsersCollection().FindOne(ctx, bson.M{"_id": oID}).Decode(&userObj)
 		if err != nil {
 			errorResponse(rw, fmt.Errorf("couldn't find/decode user"), 200)
 			return
@@ -125,7 +137,7 @@ func UpdateOnProfilePic() http.HandlerFunc {
 		filterByUserID := bson.M{"_id": oID}
 		if whatWillChange == DELETE {
 			delete := bson.M{"$set": bson.M{"isdeleted": true, "iscurrent": false}}
-			err := profilepicsCollection.FindOneAndUpdate(ctx, filterByFilename, delete).Err()
+			err := getProfilePicsCollection().FindOneAndUpdate(ctx, filterByFilename, delete).Err()
 			if err != nil {
 				fmt.Println("1")
 				errorResponse(rw, err, 500)
@@ -136,7 +148,7 @@ func UpdateOnProfilePic() http.HandlerFunc {
 			filterByNotDeleted := bson.M{"userid": userID, "isdeleted": false}
 
 			var pics []models.ProfilePic
-			cur, err := profilepicsCollection.Find(ctx, filterByNotDeleted, sortByDateCreated)
+			cur, err := getProfilePicsCollection().Find(ctx, filterByNotDeleted, sortByDateCreated)
 			if err != nil {
 				fmt.Println("2")
 				errorResponse(rw, err, 500)
@@ -159,14 +171,14 @@ func UpdateOnProfilePic() http.HandlerFunc {
 				filterByID := bson.M{"_id": pics[0].ID}
 				makeCurrentTrue := bson.M{"$set": bson.M{"iscurrent": true}}
 
-				_, err = profilepicsCollection.UpdateOne(ctx, filterByID, makeCurrentTrue)
+				_, err = getProfilePicsCollection().UpdateOne(ctx, filterByID, makeCurrentTrue)
 				if err != nil {
 					fmt.Println("4")
 					errorResponse(rw, err, 500)
 					return
 				}
 				setUserPic := bson.M{"$set": bson.M{"profile_pic": pics[0].Location}}
-				_, err = usersCollection.UpdateOne(ctx, filterByUserID, setUserPic)
+				_, err = getUsersCollection().UpdateOne(ctx, filterByUserID, setUserPic)
 				if err != nil {
 					fmt.Println("could not set new profile pic")
 					errorResponse(rw, err, 500)
@@ -178,27 +190,27 @@ func UpdateOnProfilePic() http.HandlerFunc {
 			makeCurrentFalse := bson.M{"$set": bson.M{"iscurrent": false}}
 			makeCurrentTrue := bson.M{"$set": bson.M{"iscurrent": true}}
 
-			_, err := profilepicsCollection.UpdateOne(ctx, filterByCurrent, makeCurrentFalse)
+			_, err := getProfilePicsCollection().UpdateOne(ctx, filterByCurrent, makeCurrentFalse)
 			if err != nil {
 				fmt.Println("11111")
 				errorResponse(rw, err, 500)
 				return
 			}
-			_, err = profilepicsCollection.UpdateOne(ctx, filterByFilename, makeCurrentTrue)
+			_, err = getProfilePicsCollection().UpdateOne(ctx, filterByFilename, makeCurrentTrue)
 			if err != nil {
 				fmt.Println("22222", fileName)
 				errorResponse(rw, err, 500)
 				return
 			}
 			pic := models.NewProfilePic{}
-			err = profilepicsCollection.FindOne(ctx, filterByFilename).Decode(&pic)
+			err = getProfilePicsCollection().FindOne(ctx, filterByFilename).Decode(&pic)
 			if err != nil {
 				fmt.Println("could not load new pic")
 				errorResponse(rw, err, 500)
 				return
 			}
 			setUserPic := bson.M{"$set": bson.M{"profile_pic": pic.Location}}
-			_, err = usersCollection.UpdateOne(ctx, filterByUserID, setUserPic)
+			_, err = getUsersCollection().UpdateOne(ctx, filterByUserID, setUserPic)
 			if err != nil {
 				fmt.Println("could not set new profile pic")
 				errorResponse(rw, err, 500)
@@ -263,7 +275,7 @@ func EditContent() http.HandlerFunc {
 				"tags":         theTags,
 			}}
 		}
-		mongoSingleResult := contentCollection.FindOneAndUpdate(ctx, filterByFilename, update)
+		mongoSingleResult := getContentCollection().FindOneAndUpdate(ctx, filterByFilename, update)
 
 		var content = models.Content{}
 		err = mongoSingleResult.Decode(&content)
@@ -335,7 +347,7 @@ func EditContentWithBody() http.HandlerFunc {
 				"tags":         theTags,
 			}}
 		}
-		mongoSingleResult := contentCollection.FindOneAndUpdate(ctx, filterByFilename, update)
+		mongoSingleResult := getContentCollection().FindOneAndUpdate(ctx, filterByFilename, update)
 
 		var content = models.Content{}
 		err = mongoSingleResult.Decode(&content)
@@ -411,7 +423,7 @@ func EditContentWithBodyV2() http.HandlerFunc {
 				"visibility":   visibility,
 			}}
 		}
-		mongoSingleResult := contentCollection.FindOneAndUpdate(ctx, filterByFilename, update)
+		mongoSingleResult := getContentCollection().FindOneAndUpdate(ctx, filterByFilename, update)
 
 		var content = models.Content{}
 		err = mongoSingleResult.Decode(&content)
@@ -515,7 +527,7 @@ func PostProfilePic() http.HandlerFunc {
 
 		newPostPic.Location = outPath
 
-		result, err := profilepicsCollection.InsertOne(ctx, newPostPic)
+		result, err := getProfilePicsCollection().InsertOne(ctx, newPostPic)
 		if err != nil {
 			errorResponse(rw, err, http.StatusInternalServerError)
 			return
@@ -587,15 +599,15 @@ func PostProfilePicBase64() http.HandlerFunc {
 			IsCurrent:   iscurrent,
 			IsDeleted:   false,
 		}
-		result, err := profilepicsCollection.InsertOne(ctx, newPostPic)
+		result, err := getProfilePicsCollection().InsertOne(ctx, newPostPic)
 		if err != nil {
 			errorResponse(rw, err, 500)
 			return
 		}
 		if iscurrent {
 			filterByCurrent := bson.M{"userid": userID, "iscurrent": true}
-			profilepicsCollection.UpdateOne(ctx, filterByCurrent, bson.M{"$set": bson.M{"iscurrent": false}})
-			usersCollection.UpdateOne(ctx, bson.M{"_id": oid}, bson.M{"$set": bson.M{"profile_pic": location}})
+			getProfilePicsCollection().UpdateOne(ctx, filterByCurrent, bson.M{"$set": bson.M{"iscurrent": false}})
+			getUsersCollection().UpdateOne(ctx, bson.M{"_id": oid}, bson.M{"$set": bson.M{"profile_pic": location}})
 		}
 		successResponse(rw, result)
 	}
@@ -763,7 +775,7 @@ func PostPic() http.HandlerFunc {
 		newPostPic.Location = originalPath
 
 		// Insert to DB
-		result, err := contentCollection.InsertOne(ctx, newPostPic)
+		result, err := getContentCollection().InsertOne(ctx, newPostPic)
 		fmt.Println(result)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -958,7 +970,7 @@ func PostPicWithBody() http.HandlerFunc {
 		newPostPic.Location = originalPath
 
 		// Insert into DB
-		result, err := contentCollection.InsertOne(ctx, newPostPic)
+		result, err := getContentCollection().InsertOne(ctx, newPostPic)
 		fmt.Println(result)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -1143,7 +1155,7 @@ func PostVideo() http.HandlerFunc {
 		}
 
 		newPostVid.Location = newPostVid.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
-		result, err := videosCollection.InsertOne(ctx, newPostVid)
+		result, err := getVideosCollection().InsertOne(ctx, newPostVid)
 		fmt.Println(result)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -1200,7 +1212,7 @@ func PostText() http.HandlerFunc {
 		for i, s := range newTextContent.Tags {
 			newTextContent.Tags[i] = strings.Trim(s, " ")
 		}
-		result, err := contentCollection.InsertOne(ctx, newTextContent)
+		result, err := getContentCollection().InsertOne(ctx, newTextContent)
 		if err != nil {
 			fmt.Println(err)
 			errorResponse(rw, err, 200)
@@ -1261,7 +1273,7 @@ func PostTextWithBody() http.HandlerFunc {
 		for i, s := range newTextContent.Tags {
 			newTextContent.Tags[i] = strings.Trim(s, " ")
 		}
-		result, err := contentCollection.InsertOne(ctx, newTextContent)
+		result, err := getContentCollection().InsertOne(ctx, newTextContent)
 		if err != nil {
 			fmt.Println(err)
 			errorResponse(rw, err, 200)
@@ -1407,7 +1419,7 @@ func PostVideoNT() http.HandlerFunc {
 		defer f.Close()
 
 		newPostVid.Location = newPostVid.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
-		result, err := contentCollection.InsertOne(ctx, newPostVid)
+		result, err := getContentCollection().InsertOne(ctx, newPostVid)
 		fmt.Println(result)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -1572,7 +1584,7 @@ func PostVideoNTWithBody() http.HandlerFunc {
 		defer f.Close()
 
 		newPostVid.Location = newPostVid.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
-		result, err := contentCollection.InsertOne(ctx, newPostVid)
+		result, err := getContentCollection().InsertOne(ctx, newPostVid)
 		fmt.Println(result)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -1632,7 +1644,7 @@ func StartStream() http.HandlerFunc {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
 		newStream.Location = newStream.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
-		result, err := contentCollection.InsertOne(ctx, newStream)
+		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
 			errresponse := responses.ContentResponse{Status: http.StatusConflict, Message: "error"}
@@ -1705,7 +1717,7 @@ func StartStreamWithBody() http.HandlerFunc {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
 		newStream.Location = newStream.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
-		result, err := contentCollection.InsertOne(ctx, newStream)
+		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
 			errresponse := responses.ContentResponse{Status: http.StatusConflict, Message: "error"}
@@ -1730,7 +1742,7 @@ func SetInitialVisibility() http.HandlerFunc {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		cur, err := contentCollection.Find(ctx, bson.M{})
+		cur, err := getContentCollection().Find(ctx, bson.M{})
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return
@@ -1741,7 +1753,7 @@ func SetInitialVisibility() http.HandlerFunc {
 			return
 		}
 		for k, v := range content {
-			res, err := contentCollection.UpdateOne(ctx, bson.M{"_id": v.Id}, bson.M{"$set": bson.M{"visibility": VISIBILITY_EVERYONE}})
+			res, err := getContentCollection().UpdateOne(ctx, bson.M{"_id": v.Id}, bson.M{"$set": bson.M{"visibility": VISIBILITY_EVERYONE}})
 			if err != nil {
 				fmt.Println("COULDN'T UPDATE INDEX %v", k)
 				continue
@@ -1758,7 +1770,7 @@ func SetTranscodingStatus() http.HandlerFunc {
 		defer cancel()
 		filter := bson.M{"type": "video"}
 		update := bson.M{"$set": bson.M{"transcoding": TRANSCODING_DONE}}
-		res, err := contentCollection.UpdateMany(ctx, filter, update)
+		res, err := getContentCollection().UpdateMany(ctx, filter, update)
 		if err != nil {
 			errorResponse(w, err, 500)
 			return
@@ -1784,7 +1796,7 @@ func DeleteContent() http.HandlerFunc {
 		filter := bson.M{"_id": oID}
 		update := bson.M{"$set": bson.M{"isdeleted": true}}
 
-		result, err := contentCollection.UpdateOne(ctx, filter, update)
+		result, err := getContentCollection().UpdateOne(ctx, filter, update)
 		if err != nil {
 			errorResponse(rw, fmt.Errorf("failed to delete content"), 500)
 			return

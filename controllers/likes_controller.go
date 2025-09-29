@@ -14,7 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var likesCollection *mongo.Collection = configs.GetCollection(configs.DB, "likes")
+func getLikesCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "likes")
+}
 
 func Like() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
@@ -23,7 +25,7 @@ func Like() http.HandlerFunc {
 		vars := mux.Vars(r)
 		userID := vars["UserID"]
 		likedContent := vars["LikedContent"]
-		exists := likesCollection.FindOne(ctx, bson.M{"userid": userID, "likedcontent": likedContent})
+		exists := getLikesCollection().FindOne(ctx, bson.M{"userid": userID, "likedcontent": likedContent})
 		existingLike := models.Like{}
 		if err := exists.Decode(&existingLike); err != nil {
 			if err != mongo.ErrNoDocuments {
@@ -35,7 +37,7 @@ func Like() http.HandlerFunc {
 				LikedContent: likedContent,
 				DateCreated:  time.Now(),
 			}
-			res, err := likesCollection.InsertOne(ctx, like)
+			res, err := getLikesCollection().InsertOne(ctx, like)
 			if err != nil {
 				errorResponse(rw, err, 200)
 				return
@@ -47,7 +49,7 @@ func Like() http.HandlerFunc {
 				return
 			}
 			content := models.Content{}
-			err = contentCollection.FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
+			err = getContentCollection().FindOne(ctx, bson.M{"_id": oCID}).Decode(&content)
 			if err != nil {
 				fmt.Println("couldn't get decode content from ", oCID)
 				errorResponse(rw, err, 200)
@@ -57,7 +59,7 @@ func Like() http.HandlerFunc {
 			successResponse(rw, res.InsertedID)
 			return
 		}
-		delRes, err := likesCollection.DeleteOne(ctx, bson.M{"_id": existingLike.ID})
+		delRes, err := getLikesCollection().DeleteOne(ctx, bson.M{"_id": existingLike.ID})
 		if err != nil {
 			errorResponse(rw, err, 200)
 			return

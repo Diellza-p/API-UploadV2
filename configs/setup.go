@@ -2,8 +2,6 @@ package configs
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -12,64 +10,90 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
+func ConnectDB() error {
+	if DB != nil {
+		return nil // Already connected
+	}
 
+	logger := LogWithContext("database", "mongodb-connect")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Failed to create MongoDB client", "error", err, "uri", EnvMongoURI())
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Failed to connect to MongoDB", "error", err)
+		return err
 	}
 
-	//ping the database
+	// Ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Failed to ping MongoDB", "error", err)
+		return err
 	}
-	fmt.Println("Connected to MongoDB")
-	return client
+
+	DB = client
+	logger.Info("Connected to MongoDB successfully", "uri", EnvMongoURI())
+	return nil
 }
 
 // Client instance
-var DB *mongo.Client = ConnectDB()
+var DB *mongo.Client
 var REDIS *redis.Client
 
 // getting database collections
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
+	if client == nil {
+		panic("MongoDB client is nil - database not connected")
+	}
+
 	// Extract database name from MongoDB URI
 	// URI format: mongodb://user:pass@host:port/database?options
 	uri := EnvMongoURI()
-	log.Printf("GetCollection: MongoDB URI: %s", uri)
+	Logger.Debug("Getting MongoDB collection", "uri", uri, "collection", collectionName)
+
 	// Simple parsing to extract database name
 	parts := strings.Split(uri, "/")
 	if len(parts) >= 4 {
 		dbName := strings.Split(parts[3], "?")[0] // Remove query parameters
-		log.Printf("GetCollection: extracted database name: %s, collection: %s", dbName, collectionName)
+		Logger.Debug("Extracted database name from URI", "database", dbName)
 		collection := client.Database(dbName).Collection(collectionName)
 		return collection
 	}
+
 	// Fallback to hardcoded name if parsing fails
-	log.Printf("GetCollection: failed to parse database name from URI, using fallback 'EyeCDB', collection: %s", collectionName)
-	collection := client.Database("EyeCDB").Collection(collectionName)
+	Logger.Warn("Failed to parse database name from URI, using fallback", "fallback_db", "synapp", "collection", collectionName)
+	collection := client.Database("synapp").Collection(collectionName)
 	return collection
 }
 
-func ConnectREDISDB() {
+func ConnectREDISDB() error {
+	if REDIS != nil {
+		return nil // Already connected
+	}
+
+	logger := LogWithContext("database", "redis-connect")
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     RedisURL(),
 		Password: "",
 		DB:       0,
 	})
+
 	pong, err := client.Ping().Result()
 	if err != nil {
-		fmt.Println("Error connecting to Redis:", err)
-		return
+		logger.Error("Failed to connect to Redis", "error", err, "address", RedisURL())
+		return err
 	}
-	fmt.Println("Redis ping response:", pong)
+
 	REDIS = client
+	logger.Info("Connected to Redis successfully", "address", RedisURL(), "ping_response", pong)
+	return nil
 }

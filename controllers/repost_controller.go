@@ -17,10 +17,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	repostRequestCollection *mongo.Collection = configs.GetCollection(configs.DB, "repost_requests")
-	//usersCollection *mongo.Collection = configs.GetCollection(configs.DB,"users")
-)
+func getRepostRequestCollection() *mongo.Collection {
+	return configs.GetCollection(configs.DB, "repost_requests")
+}
 
 const (
 	STATUS_PENDING  = "pending"
@@ -57,7 +56,7 @@ func RepostRequest() http.HandlerFunc {
 			errorResponse(w, fmt.Errorf("invalid object id"), 200)
 			return
 		}
-		err = usersCollection.FindOne(ctx, bson.M{"_id": oID}).Decode(&userObj)
+		err = getUsersCollection().FindOne(ctx, bson.M{"_id": oID}).Decode(&userObj)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("couldn't find/decode user"), 200)
 			return
@@ -68,7 +67,7 @@ func RepostRequest() http.HandlerFunc {
 				errorResponse(w, err, 200)
 				return
 			}
-			contentResult := contentCollection.FindOne(ctx, bson.M{"_id": contentOID})
+			contentResult := getContentCollection().FindOne(ctx, bson.M{"_id": contentOID})
 			content := models.Content{}
 			err = contentResult.Decode(&content)
 			if err != nil {
@@ -79,7 +78,7 @@ func RepostRequest() http.HandlerFunc {
 			content.Poster = repostRequest.RepostRequest
 			content.DateCreated = time.Now()
 			content.Id = primitive.NilObjectID
-			contentRes, err := contentCollection.InsertOne(ctx, content)
+			contentRes, err := getContentCollection().InsertOne(ctx, content)
 			if err != nil {
 				errorResponse(w, fmt.Errorf("couldn't insert into content"), 200)
 				return
@@ -92,13 +91,13 @@ func RepostRequest() http.HandlerFunc {
 		}
 		repostRequest.CreatedAt = time.Now()
 		repostRequest.UpdatedAt = time.Now()
-		found := repostRequestCollection.FindOne(ctx, bson.M{"repostRequest": repostRequest.RepostRequest, "contentid": repostRequest.ContentID})
+		found := getRepostRequestCollection().FindOne(ctx, bson.M{"repostRequest": repostRequest.RepostRequest, "contentid": repostRequest.ContentID})
 		exists := models.RepostRequest{}
 		err = found.Decode(&exists)
 
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
-				res, err := repostRequestCollection.InsertOne(ctx, repostRequest)
+				res, err := getRepostRequestCollection().InsertOne(ctx, repostRequest)
 				if err != nil {
 					fmt.Println(err)
 					errorResponse(w, fmt.Errorf("couldn't insert into repost requests"), 200)
@@ -113,7 +112,7 @@ func RepostRequest() http.HandlerFunc {
 			return
 		}
 		//if it exists delete repost request
-		deleteResult, err := repostRequestCollection.DeleteOne(ctx, bson.M{"repostRequest": repostRequest.RepostRequest, "requestTo": repostRequest.RequestTo})
+		deleteResult, err := getRepostRequestCollection().DeleteOne(ctx, bson.M{"repostRequest": repostRequest.RepostRequest, "requestTo": repostRequest.RequestTo})
 		if err != nil {
 			errorResponse(w, fmt.Errorf("couldn't remove repost request"), 200)
 			return
@@ -137,7 +136,7 @@ func ApproveRequest() http.HandlerFunc {
 			return
 		}
 		filter := bson.M{"_id": oID}
-		res := repostRequestCollection.FindOne(ctx, filter)
+		res := getRepostRequestCollection().FindOne(ctx, filter)
 		request := models.RepostRequest{}
 		err = res.Decode(&request)
 		if err != nil {
@@ -149,7 +148,7 @@ func ApproveRequest() http.HandlerFunc {
 			errorResponse(w, err, 200)
 			return
 		}
-		contentResult := contentCollection.FindOne(ctx, bson.M{"_id": contentOID})
+		contentResult := getContentCollection().FindOne(ctx, bson.M{"_id": contentOID})
 		content := models.Content{}
 		err = contentResult.Decode(&content)
 		if err != nil {
@@ -159,14 +158,14 @@ func ApproveRequest() http.HandlerFunc {
 		content.Poster = request.RepostRequest
 		content.DateCreated = time.Now()
 		content.Id = primitive.NilObjectID
-		contentRes, err := contentCollection.InsertOne(ctx, content)
+		contentRes, err := getContentCollection().InsertOne(ctx, content)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("couldn't insert into content"), 200)
 			return
 		}
-		_, err = repostRequestCollection.UpdateOne(ctx, filter, bson.M{"$set": bson.M{"status": STATUS_ACCEPTED}})
+		_, err = getRepostRequestCollection().UpdateOne(ctx, filter, bson.M{"$set": bson.M{"status": STATUS_ACCEPTED}})
 		if err != nil {
-			contentCollection.DeleteOne(ctx, bson.M{"_id": contentRes.InsertedID})
+			getContentCollection().DeleteOne(ctx, bson.M{"_id": contentRes.InsertedID})
 			errorResponse(w, fmt.Errorf("failed to accept request"), 200)
 			return
 		}
@@ -194,7 +193,7 @@ func DeclineRequest() http.HandlerFunc {
 			return
 		}
 		filter := bson.M{"_id": oID}
-		res, err := repostRequestCollection.UpdateOne(ctx, filter, bson.M{"$set": bson.M{"status": STATUS_DECLINED}})
+		res, err := getRepostRequestCollection().UpdateOne(ctx, filter, bson.M{"$set": bson.M{"status": STATUS_DECLINED}})
 		if err != nil {
 			errorResponse(w, fmt.Errorf("couldn't decline the request"), 200)
 			return
@@ -235,7 +234,7 @@ func GetRepostRequestsByUserID() http.HandlerFunc {
 		paginate.SetLimit(limit)
 		filter := bson.M{"requestTo": responder, "status": STATUS_PENDING}
 
-		cur, err := repostRequestCollection.Find(ctx, filter, paginate)
+		cur, err := getRepostRequestCollection().Find(ctx, filter, paginate)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("decoding db results"), 200)
 			return
@@ -251,7 +250,7 @@ func GetRepostRequestsByUserID() http.HandlerFunc {
 			if err != nil {
 				continue
 			}
-			singleRes := contentCollection.FindOne(ctx, bson.M{"_id": contentOID})
+			singleRes := getContentCollection().FindOne(ctx, bson.M{"_id": contentOID})
 			var content models.Content
 			if err = singleRes.Decode(&content); err != nil {
 				continue
@@ -288,7 +287,7 @@ func GetMyRepostRequests() http.HandlerFunc {
 		paginate.SetLimit(limit)
 		filter := bson.M{"repostRequest": requester, "status": STATUS_PENDING}
 
-		cur, err := repostRequestCollection.Find(ctx, filter, paginate)
+		cur, err := getRepostRequestCollection().Find(ctx, filter, paginate)
 		if err != nil {
 			errorResponse(w, fmt.Errorf("decoding db results"), 200)
 			return
@@ -305,7 +304,7 @@ func GetMyRepostRequests() http.HandlerFunc {
 			if err != nil {
 				continue
 			}
-			singleRes := contentCollection.FindOne(ctx, bson.M{"_id": contentOID})
+			singleRes := getContentCollection().FindOne(ctx, bson.M{"_id": contentOID})
 			var content models.Content
 			if err = singleRes.Decode(&content); err != nil {
 				continue
