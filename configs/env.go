@@ -2,6 +2,7 @@ package configs
 
 import (
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -47,6 +48,10 @@ func EnvStreamDir() string {
 
 func RedisURL() string {
 	if url := os.Getenv("REDIS_URL"); url != "" {
+		// Remove redis:// prefix if present, keep only host:port
+		if strings.HasPrefix(url, "redis://") {
+			return strings.TrimPrefix(url, "redis://")
+		}
 		return url
 	}
 	return "localhost:6379" // default fallback

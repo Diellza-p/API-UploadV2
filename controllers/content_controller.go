@@ -451,7 +451,7 @@ func PostProfilePic() http.HandlerFunc {
 
 		newPostPic := models.NewProfilePic{
 			UserID:      userID,
-			Location:    configs.EnvMediaDir() + userID + "/pics/profile/",
+			Location:    configs.EnvMediaDir() + "/" + userID + "/pics/profile/",
 			DateCreated: time.Now(),
 			IsCurrent:   iscurrent,
 			IsDeleted:   isdeleted,
@@ -544,7 +544,7 @@ func PostProfilePic() http.HandlerFunc {
 }
 
 func uploadProfilePic(userID string, file multipart.File, fileHeader *multipart.FileHeader, filename string) (string, error) {
-	folderPath := configs.EnvMediaDir() + userID + "/profile_pics/"
+	folderPath := configs.EnvMediaDir() + "/" + userID + "/profile_pics/"
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		err := os.MkdirAll(folderPath, 0755)
 		if err != nil {
@@ -645,7 +645,7 @@ func PostPic() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/pics/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/pics/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -846,7 +846,7 @@ func PostPicWithBody() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/pics/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/pics/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -1023,7 +1023,7 @@ func PostVideo() http.HandlerFunc {
 			UserID:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -1039,12 +1039,12 @@ func PostVideo() http.HandlerFunc {
 		if res != nil {
 			fmt.Println(res)
 		}
-		err = os.Chmod(configs.EnvMediaDir()+userID, 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID, 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = os.Chmod(configs.EnvMediaDir()+userID+"/videos", 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID+"/videos", 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -1316,7 +1316,7 @@ func PostVideoNT() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -1336,12 +1336,12 @@ func PostVideoNT() http.HandlerFunc {
 		if res != nil {
 			fmt.Println(res)
 		}
-		err = os.Chmod(configs.EnvMediaDir()+userID, 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID, 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = os.Chmod(configs.EnvMediaDir()+userID+"/videos", 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID+"/videos", 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -1481,7 +1481,7 @@ func PostVideoNTWithBody() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -1501,12 +1501,12 @@ func PostVideoNTWithBody() http.HandlerFunc {
 		if res != nil {
 			fmt.Println(res)
 		}
-		err = os.Chmod(configs.EnvMediaDir()+userID, 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID, 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = os.Chmod(configs.EnvMediaDir()+userID+"/videos", 0666)
+		err = os.Chmod(configs.EnvMediaDir()+"/"+userID+"/videos", 0666)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -1629,7 +1629,7 @@ func StartStream() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,
@@ -1702,7 +1702,7 @@ func StartStreamWithBody() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: ispayperview,

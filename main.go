@@ -176,4 +176,9 @@ func registerRoutes(router *mux.Router, logger *logrus.Entry) {
 
 	routes.MediaURLRoutes(router)
 	logger.Info("Media URL routes registered")
+
+	// Add static file serving for media files
+	router.PathPrefix("/files/").Handler(http.StripPrefix("/files/",
+		http.FileServer(http.Dir("/app/media/"))))
+	logger.Info("Static file serving routes registered")
 }

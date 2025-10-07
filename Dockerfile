@@ -29,11 +29,9 @@ COPY --from=builder /app/api-uploadv2 .
 # Create .env file with default values
 ENV MONGOURI=mongodb://mongodb:27017/EyeCDB
 ENV DB_HOST=postgresql
-ENV DB_USER=protecht_user
-ENV DB_PASSWORD=your_secure_password
-ENV DB_NAME=protecht
+ENV DB_PASSWORD=password123
 ENV DB_PORT=5432
-ENV REDISURL=redis://redis:6379
+ENV REDIS_URL=redis://redis:6379
 ENV MEDIADIR=/app/media/
 ENV STREAMDIR=/app/streams/
 

@@ -54,7 +54,7 @@ func PostVideoToPostgres() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     configs.EnvMediaDir() + userID + "/videos/",
+			Location:     configs.EnvMediaDir() + "/" + userID + "/videos/",
 			DateCreated:  time.Now(),
 			Show:         show,
 			IsPayPerView: isPayPerView,
