@@ -39,6 +39,12 @@ func main() {
 		return
 	}
 
+	logger.Info("Connecting to AWS S3...")
+	if err := initializeAWS(logger); err != nil {
+		logger.Fatal("Failed to initialize AWS S3", "error", err)
+		return
+	}
+
 	// Register routes with logging
 	logger.Info("Registering API routes...")
 	registerRoutes(router, logger)
@@ -93,6 +99,20 @@ func main() {
 	} else {
 		logger.Info("Server shutdown complete")
 	}
+}
+
+func initializeAWS(logger *logrus.Entry) error {
+	start := time.Now()
+	err := configs.ConnectAWS()
+	if err != nil {
+		logger.Error("AWS S3 connection failed", "error", err, "duration", time.Since(start))
+		return fmt.Errorf("aws s3 connection failed: %w", err)
+	}
+	logger.Info("AWS S3 connected successfully", 
+		"region", configs.EnvAWSRegion(),
+		"raw_bucket", configs.EnvRawBucket(),
+		"duration", time.Since(start))
+	return nil
 }
 
 func initializeDatabases(logger *logrus.Entry) error {
