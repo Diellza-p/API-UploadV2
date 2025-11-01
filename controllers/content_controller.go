@@ -1062,6 +1062,8 @@ func PostPicWithBody() http.HandlerFunc {
 			newPostPic.Tags[i] = strings.TrimSpace(s)
 		}
 
+
+		fmt.Print(">>>",newPostPic);
 		// Insert into DB
 		result, err := getContentCollection().InsertOne(ctx, newPostPic)
 		fmt.Println(result)
