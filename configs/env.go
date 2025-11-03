@@ -25,6 +25,10 @@ func EnvMongoURI() string {
 	return "mongodb://localhost:27017/synapp" // default fallback
 }
 
+func EnvStreamingServer() string {
+	return os.Getenv("STREAMING_SERVER_IP")
+}
+
 func EnvNotificationServiceURL() string {
 	if url := os.Getenv("NOTIFICATION_SERVICE_URL"); url != "" {
 		return url

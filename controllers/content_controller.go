@@ -1856,16 +1856,24 @@ func StartStream() http.HandlerFunc {
 		show, _ := strconv.ParseBool(vars["Show"])
 		ispayperview, _ := strconv.ParseBool(vars["IsPayPerView"])
 		isdeleted, _ := strconv.ParseBool(vars["IsDeleted"])
-		newUuid := uuid.New()
+		
 		ppvprice := vars["PPVPrice"]
 		price, err := strconv.ParseFloat(ppvprice, 64)
 		if err != nil {
 			fmt.Println("invalid price in PPVPrice")
 			price = 0
 		}
+		
 		if visibility != VISIBILITY_FOLLOWERS {
 			visibility = VISIBILITY_EVERYONE
 		}
+		
+		// Generate unique stream key
+		streamKey := strings.Replace(uuid.New().String(), "-", "", -1)
+		
+		// Streaming server IP (replace with your actual IP or use env variable)
+		streamingServerIP := "13.50.17.68" // TODO: Move to configs.EnvStreamingServer()
+		
 		newStream := models.Content{
 			UserID:       userID,
 			Poster:       userID,
@@ -1880,12 +1888,20 @@ func StartStream() http.HandlerFunc {
 			Type:         TYPE_STREAM,
 			Posting:      "",
 			Visibility:   visibility,
+			
+			// Live streaming fields
+			StreamKey:    streamKey,
+			RTMPUrl:      fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
+			HLSURL:       fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
+			IsLive:       false, // Will be set to true when streaming actually starts
+			ViewerCount:  0,
 		}
+		
 		newStream.Tags = strings.Split(tags, ",")
 		for i, s := range newStream.Tags {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
-		newStream.Location = newStream.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
+		
 		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -1901,7 +1917,16 @@ func StartStream() http.HandlerFunc {
 		}()
 
 		rw.WriteHeader(http.StatusCreated)
-		response := responses.ContentResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}}
+		response := responses.ContentResponse{
+			Status: http.StatusCreated, 
+			Message: "success", 
+			Data: map[string]interface{}{
+				"content_id": result.InsertedID,
+				"stream_key": streamKey,
+				"rtmp_url": newStream.RTMPUrl,
+				"hls_url": newStream.HLSURL,
+			},
+		}
 		json.NewEncoder(rw).Encode(response)
 	}
 }
@@ -1918,18 +1943,19 @@ func StartStreamWithBody() http.HandlerFunc {
 		show, _ := strconv.ParseBool(vars["Show"])
 		ispayperview, _ := strconv.ParseBool(vars["IsPayPerView"])
 		isdeleted, _ := strconv.ParseBool(vars["IsDeleted"])
-		newUuid := uuid.New()
+		
 		ppvprice := vars["PPVPrice"]
 		price, err := strconv.ParseFloat(ppvprice, 64)
 		if err != nil {
 			fmt.Println("invalid price in PPVPrice")
 			price = 0
 		}
+		
 		if visibility != VISIBILITY_FOLLOWERS {
 			visibility = VISIBILITY_EVERYONE
 		}
+		
 		contentBody := models.ContentBody{}
-
 		err = json.NewDecoder(r.Body).Decode(&contentBody)
 		if err != nil {
 			errorResponse(rw, fmt.Errorf("bad request"), 200)
@@ -1938,6 +1964,12 @@ func StartStreamWithBody() http.HandlerFunc {
 
 		title := contentBody.Title
 		description := contentBody.Description
+		
+		// Generate unique stream key
+		streamKey := strings.Replace(uuid.New().String(), "-", "", -1)
+		
+		// Streaming server IP
+		streamingServerIP := "13.50.17.68" // TODO: Move to config
 
 		newStream := models.Content{
 			UserID:       userID,
@@ -1953,12 +1985,20 @@ func StartStreamWithBody() http.HandlerFunc {
 			Type:         TYPE_STREAM,
 			Posting:      "",
 			Visibility:   visibility,
+			
+			// Live streaming fields
+			StreamKey:    streamKey,
+			RTMPUrl:      fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
+			HLSURL:       fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
+			IsLive:       false,
+			ViewerCount:  0,
 		}
+		
 		newStream.Tags = strings.Split(tags, ",")
 		for i, s := range newStream.Tags {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
-		newStream.Location = newStream.Location + strings.Replace(newUuid.String(), "-", "", -1) + "/"
+		
 		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -1974,7 +2014,16 @@ func StartStreamWithBody() http.HandlerFunc {
 		}()
 
 		rw.WriteHeader(http.StatusCreated)
-		response := responses.ContentResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}}
+		response := responses.ContentResponse{
+			Status: http.StatusCreated, 
+			Message: "success", 
+			Data: map[string]interface{}{
+				"content_id": result.InsertedID,
+				"stream_key": streamKey,
+				"rtmp_url": newStream.RTMPUrl,
+				"hls_url": newStream.HLSURL,
+			},
+		}
 		json.NewEncoder(rw).Encode(response)
 	}
 }

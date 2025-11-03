@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 	"upload-service/configs"
+	"upload-service/controllers"
 	"upload-service/middleware"
 	"upload-service/routes"
 
@@ -44,6 +45,10 @@ func main() {
 		logger.Fatal("Failed to initialize AWS S3", "error", err)
 		return
 	}
+
+	// Start live stream monitor
+	go controllers.MonitorLiveStreams()
+	logger.Info("Live stream monitor started")
 
 	// Register routes with logging
 	logger.Info("Registering API routes...")
@@ -99,6 +104,7 @@ func main() {
 	} else {
 		logger.Info("Server shutdown complete")
 	}
+
 }
 
 func initializeAWS(logger *logrus.Entry) error {
@@ -108,7 +114,7 @@ func initializeAWS(logger *logrus.Entry) error {
 		logger.Error("AWS S3 connection failed", "error", err, "duration", time.Since(start))
 		return fmt.Errorf("aws s3 connection failed: %w", err)
 	}
-	logger.Info("AWS S3 connected successfully", 
+	logger.Info("AWS S3 connected successfully",
 		"region", configs.EnvAWSRegion(),
 		"raw_bucket", configs.EnvRawBucket(),
 		"duration", time.Since(start))

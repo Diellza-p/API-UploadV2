@@ -34,6 +34,17 @@ type Content struct {
 	Visibility   string             `json:"visibility" bson:"visibility" gorm:"column:visibility;type:text"`
 	PgTags       string             `gorm:"column:tags;type:varchar[]"` // Used internally for PostgreSQL
 	Transcoding  string             `json:"transcoding,omitempty" bson:"transcoding,omitempty" gorm:"-"`
+
+	
+	// FOR LIVE STREAMING
+	StreamKey     string     `json:"stream_key,omitempty" bson:"stream_key,omitempty" gorm:"column:stream_key;type:text"`
+	RTMPUrl       string     `json:"rtmp_url,omitempty" bson:"rtmp_url,omitempty" gorm:"column:rtmp_url;type:text"`
+	IsLive        bool       `json:"is_live,omitempty" bson:"is_live,omitempty" gorm:"column:is_live;type:boolean;default:false"`
+	ViewerCount   int        `json:"viewer_count,omitempty" bson:"viewer_count,omitempty" gorm:"column:viewer_count;type:int;default:0"`
+	StreamStarted *time.Time `json:"stream_started,omitempty" bson:"stream_started,omitempty" gorm:"column:stream_started;type:timestamp"`
+	StreamEnded   *time.Time `json:"stream_ended,omitempty" bson:"stream_ended,omitempty" gorm:"column:stream_ended;type:timestamp"`
+
+
 }
 
 // Before saving the content to PostgreSQL, convert the []string to a PostgreSQL array string
