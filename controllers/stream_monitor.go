@@ -68,6 +68,8 @@ func checkSingleStream(stream models.Content) {
 
 	isLive := checkHLSExists(hlsURL)
 
+	fmt.Printf("  Stream %s has ENDED\n", stream.StreamKey)
+
 	// If status changed, update database
 	if isLive != stream.IsLive {
 		fmt.Printf("Stream %s status changed: %v -> %v\n", stream.StreamKey, stream.IsLive, isLive)
