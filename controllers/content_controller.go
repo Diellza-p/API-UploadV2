@@ -442,20 +442,20 @@ func deleteFromS3(bucketName, S3RawKey string) error {
 	if S3RawKey == "" {
 		return nil
 	}
-	
+
 	ctx := context.Background()
 	client := configs.GetS3Client()
-	
+
 	_, err := client.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(S3RawKey),
 	})
-	
+
 	if err != nil {
 		fmt.Println("Error deleting from S3:", err)
 		return err
 	}
-	
+
 	fmt.Println("Deleted from S3:", S3RawKey)
 	return nil
 }
@@ -533,7 +533,6 @@ func PostProfilePic() http.HandlerFunc {
 			}
 		}
 
-
 		uploader := configs.GetS3Uploader()
 		S3RawKey := fmt.Sprintf("%s/profile/%s.%s", userID, imageID, extension)
 
@@ -552,13 +551,12 @@ func PostProfilePic() http.HandlerFunc {
 		}
 		fmt.Println("Profile pic uploaded to S3")
 
-	
 		profilePicURL := configs.EnvPicturesCDNURL() + "/" + S3RawKey
 
 		newPostPic := models.NewProfilePic{
 			UserID:      userID,
 			Location:    profilePicURL,
-			S3RawKey:       S3RawKey,
+			S3RawKey:    S3RawKey,
 			DateCreated: time.Now(),
 			IsCurrent:   iscurrent,
 			IsDeleted:   isdeleted,
@@ -628,7 +626,7 @@ func PostProfilePicBase64() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		
+
 		vars := mux.Vars(r)
 		userID := vars["UserID"]
 		oid, err := primitive.ObjectIDFromHex(userID)
@@ -636,70 +634,73 @@ func PostProfilePicBase64() http.HandlerFunc {
 			errorResponse(rw, fmt.Errorf("invalid userID"), 400)
 			return
 		}
-		
+
 		iscurrent, _ := strconv.ParseBool(vars["IsCurrent"])
-		
+
 		r.ParseMultipartForm(10 * MB)
 		r.Body = http.MaxBytesReader(rw, r.Body, 10*MB)
-		
+
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			errorResponse(rw, err, 400)
 			return
 		}
 		defer file.Close()
-		
+
 		profileID := primitive.NewObjectID()
-		
+
 		// uploadProfilePic now returns CDN URL and uploads to S3
 		location, err := uploadProfilePic(userID, file, fileHeader, profileID.Hex())
 		if err != nil {
 			errorResponse(rw, err, 500)
 			return
 		}
-		
+
+		fmt.Print("LOADING WHEN LOADED", location)
+
+		fmt.Println("iscurrent", iscurrent)
 		// If setting as current, delete old current profile pic from S3
 		if iscurrent {
-			var oldPic models.NewProfilePic
-			err := getProfilePicsCollection().FindOne(ctx, bson.M{
-				"userid":    userID,
-				"iscurrent": true,
-			}).Decode(&oldPic)
+			//var oldPic models.NewProfilePic
+			// err := getProfilePicsCollection().FindOne(ctx, bson.M{
+			// 	"userid":    userID,
+			// 	"iscurrent": true,
+			// }).Decode(&oldPic)
+             // TODO AFTER YOU SET THE DELETE POLICY IN ACCOUNT
+			// if err == nil && oldPic.S3RawKey != "" {
+			// 	deleteFromS3(configs.EnvPicturesBucket(), oldPic.S3RawKey)
+			// }
 
-			if err == nil && oldPic.S3RawKey != "" {
-				deleteFromS3(configs.EnvPicturesBucket(), oldPic.S3RawKey)
-			}
-			
 			// Mark old pics as not current
-			getProfilePicsCollection().UpdateMany(ctx, 
+			getProfilePicsCollection().UpdateMany(ctx,
 				bson.M{"userid": userID, "iscurrent": true},
 				bson.M{"$set": bson.M{"iscurrent": false}},
 			)
-			
+
 			// Update user's profile_pic field
-			getUsersCollection().UpdateOne(ctx, 
-				bson.M{"_id": oid}, 
+			getUsersCollection().UpdateOne(ctx,
+				bson.M{"_id": oid},
 				bson.M{"$set": bson.M{"profile_pic": location}},
 			)
 		}
-		
+
 		newPostPic := models.NewProfilePic{
 			ID:          profileID,
 			UserID:      userID,
 			Location:    location,
-			S3RawKey:       fmt.Sprintf("%s/profile/%s", userID, profileID.Hex()), // Assuming uploadProfilePic uses this pattern
+			S3RawKey:    fmt.Sprintf("%s/profile/%s", userID, profileID.Hex()), // Assuming uploadProfilePic uses this pattern
 			Filename:    profileID.Hex(),
 			DateCreated: time.Now(),
 			IsCurrent:   iscurrent,
 			IsDeleted:   false,
 		}
-		
+
 		result, err := getProfilePicsCollection().InsertOne(ctx, newPostPic)
 		if err != nil {
 			errorResponse(rw, err, 500)
 			return
 		}
-		
+
 		successResponse(rw, result)
 	}
 }
@@ -847,7 +848,7 @@ func PostPic() http.HandlerFunc {
 			Description:  description,
 			Location:     originalURL,
 			Posting:      thumbnailURL,
-			S3RawKey:        s3OriginalKey,
+			S3RawKey:     s3OriginalKey,
 			ThumbnailKey: s3ThumbnailKey,
 			DateCreated:  time.Now(),
 			Show:         show,
@@ -972,7 +973,6 @@ func PostPicWithBody() http.HandlerFunc {
 			return
 		}
 
-		
 		uploader := configs.GetS3Uploader()
 		s3OriginalKey := fmt.Sprintf("%s/%s.%s", userID, imageID, extension)
 
@@ -1010,7 +1010,7 @@ func PostPicWithBody() http.HandlerFunc {
 				case "png":
 					imaging.Encode(&thumbBuf, thumbnail, imaging.PNG)
 				case "webp":
-					imaging.Encode(&thumbBuf, thumbnail, imaging.JPEG) 
+					imaging.Encode(&thumbBuf, thumbnail, imaging.JPEG)
 				default:
 					imaging.Encode(&thumbBuf, thumbnail, imaging.JPEG)
 				}
@@ -1027,14 +1027,13 @@ func PostPicWithBody() http.HandlerFunc {
 				})
 				if err != nil {
 					fmt.Println("Error uploading thumbnail:", err)
-					s3ThumbnailKey = s3OriginalKey 
+					s3ThumbnailKey = s3OriginalKey
 				} else {
 					fmt.Println("Thumbnail uploaded to S3")
 				}
 			}
 		}
 
-	
 		cdnURL := configs.EnvPicturesCDNURL()
 		originalURL := cdnURL + "/" + s3OriginalKey
 		thumbnailURL := cdnURL + "/" + s3ThumbnailKey
@@ -1044,9 +1043,9 @@ func PostPicWithBody() http.HandlerFunc {
 			Poster:       userID,
 			Title:        title,
 			Description:  description,
-			Location:     originalURL,   
-			Posting:      thumbnailURL, 
-			S3RawKey:        s3OriginalKey,
+			Location:     originalURL,
+			Posting:      thumbnailURL,
+			S3RawKey:     s3OriginalKey,
 			ThumbnailKey: s3ThumbnailKey,
 			DateCreated:  time.Now(),
 			Show:         show,
@@ -1062,8 +1061,7 @@ func PostPicWithBody() http.HandlerFunc {
 			newPostPic.Tags[i] = strings.TrimSpace(s)
 		}
 
-
-		fmt.Print(">>>",newPostPic);
+		fmt.Print(">>>", newPostPic)
 		// Insert into DB
 		result, err := getContentCollection().InsertOne(ctx, newPostPic)
 		fmt.Println(result)
@@ -1340,7 +1338,6 @@ func PostVideo() http.HandlerFunc {
 			return
 		}
 
-		
 		uploader := configs.GetS3Uploader()
 
 		fmt.Print("UPLOADER>>", uploader)
@@ -1390,7 +1387,6 @@ func PostVideo() http.HandlerFunc {
 
 		fmt.Println("TEST MONGO BD INSERT")
 
-		
 		result, err := getVideosCollection().InsertOne(ctx, newPostVid)
 		fmt.Println("MongoDB insert result:", result)
 		if err != nil {
@@ -1789,7 +1785,6 @@ func PostVideoNTWithBody() http.HandlerFunc {
 		}
 		fmt.Println("Video uploaded to S3")
 
-		
 		newPostVid := models.Content{
 			VideoID:      videoID,
 			UserID:       userID,
@@ -1856,24 +1851,24 @@ func StartStream() http.HandlerFunc {
 		show, _ := strconv.ParseBool(vars["Show"])
 		ispayperview, _ := strconv.ParseBool(vars["IsPayPerView"])
 		isdeleted, _ := strconv.ParseBool(vars["IsDeleted"])
-		
+
 		ppvprice := vars["PPVPrice"]
 		price, err := strconv.ParseFloat(ppvprice, 64)
 		if err != nil {
 			fmt.Println("invalid price in PPVPrice")
 			price = 0
 		}
-		
+
 		if visibility != VISIBILITY_FOLLOWERS {
 			visibility = VISIBILITY_EVERYONE
 		}
-		
+
 		// Generate unique stream key
 		streamKey := strings.Replace(uuid.New().String(), "-", "", -1)
-		
+
 		// Streaming server IP (replace with your actual IP or use env variable)
 		streamingServerIP := "13.50.17.68" // TODO: Move to configs.EnvStreamingServer()
-		
+
 		newStream := models.Content{
 			UserID:       userID,
 			Poster:       userID,
@@ -1888,20 +1883,20 @@ func StartStream() http.HandlerFunc {
 			Type:         TYPE_STREAM,
 			Posting:      "",
 			Visibility:   visibility,
-			
+
 			// Live streaming fields
-			StreamKey:    streamKey,
-			RTMPUrl:      fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
-			HLSURL:       fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
-			IsLive:       false, // Will be set to true when streaming actually starts
-			ViewerCount:  0,
+			StreamKey:   streamKey,
+			RTMPUrl:     fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
+			HLSURL:      fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
+			IsLive:      false, // Will be set to true when streaming actually starts
+			ViewerCount: 0,
 		}
-		
+
 		newStream.Tags = strings.Split(tags, ",")
 		for i, s := range newStream.Tags {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
-		
+
 		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -1918,13 +1913,13 @@ func StartStream() http.HandlerFunc {
 
 		rw.WriteHeader(http.StatusCreated)
 		response := responses.ContentResponse{
-			Status: http.StatusCreated, 
-			Message: "success", 
+			Status:  http.StatusCreated,
+			Message: "success",
 			Data: map[string]interface{}{
 				"content_id": result.InsertedID,
 				"stream_key": streamKey,
-				"rtmp_url": newStream.RTMPUrl,
-				"hls_url": newStream.HLSURL,
+				"rtmp_url":   newStream.RTMPUrl,
+				"hls_url":    newStream.HLSURL,
 			},
 		}
 		json.NewEncoder(rw).Encode(response)
@@ -1943,18 +1938,18 @@ func StartStreamWithBody() http.HandlerFunc {
 		show, _ := strconv.ParseBool(vars["Show"])
 		ispayperview, _ := strconv.ParseBool(vars["IsPayPerView"])
 		isdeleted, _ := strconv.ParseBool(vars["IsDeleted"])
-		
+
 		ppvprice := vars["PPVPrice"]
 		price, err := strconv.ParseFloat(ppvprice, 64)
 		if err != nil {
 			fmt.Println("invalid price in PPVPrice")
 			price = 0
 		}
-		
+
 		if visibility != VISIBILITY_FOLLOWERS {
 			visibility = VISIBILITY_EVERYONE
 		}
-		
+
 		contentBody := models.ContentBody{}
 		err = json.NewDecoder(r.Body).Decode(&contentBody)
 		if err != nil {
@@ -1964,10 +1959,10 @@ func StartStreamWithBody() http.HandlerFunc {
 
 		title := contentBody.Title
 		description := contentBody.Description
-		
+
 		// Generate unique stream key
 		streamKey := strings.Replace(uuid.New().String(), "-", "", -1)
-		
+
 		// Streaming server IP
 		streamingServerIP := "13.50.17.68" // TODO: Move to config
 
@@ -1985,20 +1980,20 @@ func StartStreamWithBody() http.HandlerFunc {
 			Type:         TYPE_STREAM,
 			Posting:      "",
 			Visibility:   visibility,
-			
+
 			// Live streaming fields
-			StreamKey:    streamKey,
-			RTMPUrl:      fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
-			HLSURL:       fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
-			IsLive:       false,
-			ViewerCount:  0,
+			StreamKey:   streamKey,
+			RTMPUrl:     fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
+			HLSURL:      fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
+			IsLive:      false,
+			ViewerCount: 0,
 		}
-		
+
 		newStream.Tags = strings.Split(tags, ",")
 		for i, s := range newStream.Tags {
 			newStream.Tags[i] = strings.Trim(s, " ")
 		}
-		
+
 		result, err := getContentCollection().InsertOne(ctx, newStream)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -2015,13 +2010,13 @@ func StartStreamWithBody() http.HandlerFunc {
 
 		rw.WriteHeader(http.StatusCreated)
 		response := responses.ContentResponse{
-			Status: http.StatusCreated, 
-			Message: "success", 
+			Status:  http.StatusCreated,
+			Message: "success",
 			Data: map[string]interface{}{
 				"content_id": result.InsertedID,
 				"stream_key": streamKey,
-				"rtmp_url": newStream.RTMPUrl,
-				"hls_url": newStream.HLSURL,
+				"rtmp_url":   newStream.RTMPUrl,
+				"hls_url":    newStream.HLSURL,
 			},
 		}
 		json.NewEncoder(rw).Encode(response)
