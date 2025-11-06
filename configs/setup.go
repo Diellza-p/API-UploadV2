@@ -57,6 +57,13 @@ func GetCollection(client *mongo.Client, collectionName string) *mongo.Collectio
 	// Extract database name from MongoDB URI
 	// URI format: mongodb://user:pass@host:port/database?options
 	uri := EnvMongoURI()
+
+
+	// GOD HELP US
+	if collectionName == "users" {
+		uri = "mongodb://localhost:27017/eyeCDB"
+	}
+
 	Logger.Debug("Getting MongoDB collection", "uri", uri, "collection", collectionName)
 
 	// Simple parsing to extract database name
