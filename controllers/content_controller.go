@@ -1970,7 +1970,7 @@ func StartView() http.HandlerFunc {
 		}
 		
 		// Only track if it's a live stream
-		if content.Type == STREAM && content.IsLive {
+		if content.Type == TYPE_STREAM && content.IsLive {
 			// Store viewer in Redis with 30s expiry
 			redisKey := fmt.Sprintf("stream:%s:viewer:%s", media, viewerid)
 			configs.GetRedisClient().Set(ctx, redisKey, time.Now().Unix(), 30*time.Second)
