@@ -3,6 +3,7 @@ package configs
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -18,6 +19,9 @@ func ConnectREDISDB() error {
 		return fmt.Errorf("failed to parse Redis URL: %w", err)
 	}
 
+
+    log.Printf("Connecting to Redis at: %s", redisURL)
+	
 	redisClient = redis.NewClient(opt)
 
 	// Test connection
