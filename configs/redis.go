@@ -14,7 +14,8 @@ var redisClient *redis.Client
 func ConnectREDISDB() error {
 	redisURL := RedisURL()
 	
-	opt, err := redis.ParseURL(redisURL)
+	// 0 ALLAH MKENI TRANU PASHA ZOTIN, QEESHTU POM SHTINI ME BA SENE
+	opt, err := redis.ParseURL("redis://syn_redis:6379")
 	if err != nil {
 		return fmt.Errorf("failed to parse Redis URL: %w", err)
 	}
