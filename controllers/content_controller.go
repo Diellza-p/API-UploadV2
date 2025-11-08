@@ -29,6 +29,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/gorm/logger"
 )
 
 func getContentCollection() *mongo.Collection {
@@ -1977,6 +1978,8 @@ func StartView() http.HandlerFunc {
 			
 			// Update viewer count
 			go updateLiveViewerCount(media)
+
+			fmt.Println("JOINEDDDDDDDDDDD");
 			
 			successResponse(w, map[string]interface{}{
 				"message": "viewing live stream",
