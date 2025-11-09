@@ -2029,7 +2029,7 @@ func HandleStreamPublishDone() http.HandlerFunc {
 				"posting": recordingURL,
 				"has_recording": true,
 				"status": "ready",
-				"transcoding": true,
+				"transcoding": TRANSCODING_DONE,
 			},
 		}
 
