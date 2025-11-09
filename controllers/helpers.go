@@ -62,13 +62,15 @@ func sendLiveStartedNotification(userID string, contentID string) {
 	defer cancel()
 	followings := []models.Follow{}
 
-
+	fmt.Println("userID", userID)
 
 	cur, err := getFollowsCollection().Find(ctx, bson.M{"following": userID})
 	if err != nil {
+		fmt.Println("Find error:", err)
 		return
 	}
 	if err := cur.All(ctx, &followings); err != nil {
+		fmt.Println("Cursor decode error:", err)
 		return
 	}
 
