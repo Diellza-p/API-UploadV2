@@ -1887,7 +1887,7 @@ func StartStream() http.HandlerFunc {
 			// Live streaming fields
 			StreamKey:   streamKey,
 			RTMPUrl:     fmt.Sprintf("rtmp://%s/live/%s", streamingServerIP, streamKey),
-			HLSURL:      fmt.Sprintf("http://%s/hls/%s.m3u8", streamingServerIP, streamKey),
+			HLSURL:      fmt.Sprintf("http://%s/hls/%s/index.m3u8", streamingServerIP, streamKey),
 			IsLive:      false, // Will be set to true when streaming actually starts
 			ViewerCount: 0,
 		}
