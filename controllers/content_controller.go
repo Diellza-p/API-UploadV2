@@ -1926,6 +1926,65 @@ func StartStream() http.HandlerFunc {
 	}
 }
 
+// KNOW BASED ON on_publish event from rtmp nginx when live stream started
+func HandleStreamPublish() http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			http.Error(rw, "invalid form", http.StatusBadRequest)
+			return
+		}
+
+		streamKey := r.FormValue("name")
+		
+		if streamKey == "" {
+			http.Error(rw, "missing stream key", http.StatusBadRequest)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		var stream models.Content
+		err := getContentCollection().FindOne(ctx, bson.M{
+			"stream_key": streamKey,
+			"type":       TYPE_STREAM,
+		}).Decode(&stream)
+
+		if err != nil {
+			http.Error(rw, "unauthorized", http.StatusNotFound)
+			return
+		}
+
+		
+		now := time.Now()
+		getContentCollection().UpdateOne(
+			ctx,
+			bson.M{"_id": stream.Id},
+			bson.M{"$set": bson.M{
+				"is_live":        true,
+				"stream_started": now,
+			}},
+		)
+
+		// Send notifications
+		go func() {
+			contentID := stream.Id.Hex()
+			sendLiveStartedNotification(stream.UserID, contentID)
+		}()
+
+		fmt.Println( stream.UserID + " IS NOW LIVEE ");
+
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
+		json.NewEncoder(rw).Encode(map[string]string{
+			"user_id":    stream.UserID,
+			"stream_key": streamKey,
+		})
+	}
+}
+
+
+
 func EndView() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

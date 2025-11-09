@@ -31,11 +31,13 @@ func ContentRoutes(router *mux.Router) {
 	router.HandleFunc("/uploadmicro/v1/startstream/{UserID}/{Title}/{Description}/{Show}/{IsPayPerView}/{PPVPrice}/{IsDeleted}/{Tags}/{Visibility}", controllers.StartStream()).Methods("POST")
 	router.HandleFunc("/uploadmicro/v1/startstream/{UserID}/{Show}/{IsPayPerView}/{PPVPrice}/{IsDeleted}/{Tags}/{Visibility}", controllers.StartStreamWithBody()).Methods("POST")
 
+	// NOTIFY WHEN STREAM STARTS callback from nginx
+	router.HandleFunc("/uploadmicro/v1/streamstarted", controllers.HandleStreamPublish()).Methods("POST")
+
 	// VIEW TRACKING
 	router.HandleFunc("/uploadmicro/v1/stream/join/{MediaID}/{ViewerID}", controllers.StartView()).Methods("POST")
 	router.HandleFunc("/uploadmicro/v1/stream/heartbeat/{MediaID}/{ViewerID}", controllers.ViewHeartbeat()).Methods("POST")
 	router.HandleFunc("/uploadmicro/v1/stream/leave/{MediaID}/{ViewerID}", controllers.EndView()).Methods("POST")
-
 
 	router.HandleFunc("/uploadmicro/v1/setInitialVisibility", controllers.SetInitialVisibility()).Methods("POST")
 	router.HandleFunc("/uploadmicro/v1/setTranscodingStatus", controllers.SetTranscodingStatus()).Methods("GET")
