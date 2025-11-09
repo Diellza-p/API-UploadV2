@@ -62,7 +62,7 @@ func sendLiveStartedNotification(userID string, contentID string) {
 	defer cancel()
 	followings := []models.Follow{}
 
-	fmt.Print("followings", followings)
+
 
 	cur, err := getFollowsCollection().Find(ctx, bson.M{"following": userID})
 	if err != nil {
@@ -71,6 +71,8 @@ func sendLiveStartedNotification(userID string, contentID string) {
 	if err := cur.All(ctx, &followings); err != nil {
 		return
 	}
+
+	fmt.Print("followings", followings)
 	for _, v := range followings {
 		sendNotificationWithData(v.Follower, userID, "started Live Streaming 👁", contentID, models.LiveStreamingNotification, ctx)
 	}
