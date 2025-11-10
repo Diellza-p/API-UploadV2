@@ -9,7 +9,7 @@ import (
 func FavoritesRoutes(router *mux.Router) {
 	// router.HandleFunc("/uploadmicro/v1/addContentToFavorites/{UserID}/{ContentID}/{AlbumTitle}", controllers.AddContentToFavorites()).Methods("POST")
     
-	router.HandleFunc("/uploadmicro/v1/addContentToFavorites/{UserID}/{ContentID}/{AlbumID}", controllers.AddContentToFavorites()).Methods("POST")
+	router.HandleFunc("/uploadmicro/v1/addContentToFavorites/{UserID}/{ContentID}", controllers.AddContentToFavorites()).Methods("POST")
 
 
 	// router.HandleFunc("/uploadmicro/v1/removeContentFromFavorites/{UserID}/{ContentID}", controllers.RemoveContentFromFavorites()).Methods("DELETE")
