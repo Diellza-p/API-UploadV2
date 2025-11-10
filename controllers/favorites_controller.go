@@ -583,7 +583,7 @@ func GetUserFavorites() http.HandlerFunc {
 		
 		albumsCollection := configs.GetCollection(configs.DB, "albums")
 		favoritesCollection := configs.GetCollection(configs.DB, "favorites")
-		contentsCollection := configs.GetCollection(configs.DB, "contents")
+		contentsCollection := configs.GetCollection(configs.DB, "content")
 		
 
 		cursor, err := albumsCollection.Find(ctx, bson.M{"userID": userID})
