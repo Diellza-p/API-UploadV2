@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 	"upload-service/configs"
+	"upload-service/controllers"
+
 	//"upload-service/controllers"
 	"upload-service/middleware"
 	"upload-service/routes"
@@ -54,7 +56,7 @@ func main() {
 	}
 
 	// Start live stream monitor TODO STOP FOR NOW
-	//go controllers.MonitorLiveStreams()
+	go controllers.MonitorLiveStreams()
 	logger.Info("Live stream monitor started")
 
 	// Register routes with logging
