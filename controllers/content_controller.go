@@ -2583,6 +2583,7 @@ func UploadMultipleFiles() http.HandlerFunc {
 
 		if hlsURL != "" {
 			updateDoc["hls_url"] = hlsURL
+			updateDoc["posting"] = hlsURL
 			fmt.Printf("HLS URL: %s\n", hlsURL)
 		}
 
@@ -2591,15 +2592,35 @@ func UploadMultipleFiles() http.HandlerFunc {
 			fmt.Printf("Thumbnail URL: %s\n", thumbnailURL)
 		}
 
-		// Update database
+		// Try to find the document
+		// First try by video_id (new format)
 		filter := bson.M{"video_id": videoID}
-		update := bson.M{"$set": updateDoc}
-
-		result, err := getContentCollection().UpdateOne(ctx, filter, update)
-		if err != nil {
+		result, err := getContentCollection().UpdateOne(ctx, filter, bson.M{"$set": updateDoc})
+		
+		// If not found, try legacy format (search by location containing the videoID)
+		if err == nil && result.MatchedCount == 0 {
+			fmt.Printf("No document found with video_id, trying legacy location search...\n")
+			
+			// Search by location field containing the video_id
+			legacyFilter := bson.M{
+				"location": bson.M{
+					"$regex": videoID,
+					"$options": "i", // case insensitive
+				},
+				"LEGACY": true,
+			}
+			
+			result, err = getContentCollection().UpdateOne(ctx, legacyFilter, bson.M{"$set": updateDoc})
+			
+			if err != nil {
+				fmt.Printf("ERROR: Failed to update legacy content: %v\n", err)
+			} else if result.MatchedCount == 0 {
+				fmt.Printf("WARNING: No legacy content found with location containing video_id=%s\n", videoID)
+			} else {
+				fmt.Printf("SUCCESS: Updated legacy content collection\n")
+			}
+		} else if err != nil {
 			fmt.Printf("ERROR: Failed to update content collection: %v\n", err)
-		} else if result.MatchedCount == 0 {
-			fmt.Printf("WARNING: No content found with video_id=%s\n", videoID)
 		} else {
 			fmt.Printf("SUCCESS: Updated content collection\n")
 		}
